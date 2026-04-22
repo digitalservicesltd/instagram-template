@@ -13,8 +13,6 @@
 
   <!-- Export libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" defer></script>
 
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -48,37 +46,11 @@
       Content<span>Engine</span>
     </div>
 
-    <div class="mood-selector" id="moodSelector">
-      <button class="mood-pill" data-mood="aggressive" id="mood-aggressive" title="Aggressive: Red/Black">
-        <span class="mood-dot" data-mood="aggressive"></span>
-        <span>Aggressive</span>
-      </button>
-      <button class="mood-pill" data-mood="calm" id="mood-calm" title="Calm: Sage/Cream">
-        <span class="mood-dot" data-mood="calm"></span>
-        <span>Calm</span>
-      </button>
-      <button class="mood-pill active" data-mood="elegant" id="mood-elegant" title="Elegant: Violet/Deep">
-        <span class="mood-dot" data-mood="elegant"></span>
-        <span>Elegant</span>
-      </button>
-      <button class="mood-pill" data-mood="bold" id="mood-bold" title="Bold: Amber/Charcoal">
-        <span class="mood-dot" data-mood="bold"></span>
-        <span>Bold</span>
-      </button>
-      <button class="mood-pill" data-mood="minimal" id="mood-minimal" title="Minimal: Gray/White">
-        <span class="mood-dot" data-mood="minimal"></span>
-        <span>Minimal</span>
-      </button>
-      <button class="mood-pill" data-mood="warm" id="mood-warm" title="Warm: Orange/Cream">
-        <span class="mood-dot" data-mood="warm"></span>
-        <span>Warm</span>
-      </button>
-    </div>
+
 
     <div class="top-bar-actions">
-      <button class="btn-export btn-export-secondary" id="btnExportZip" title="Export carousel as ZIP">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-        <span>ZIP</span>
+      <button class="btn-icon-sm" id="btnSettings" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
       </button>
       <button class="btn-export" id="btnExportPng" title="Export as PNG">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
@@ -218,10 +190,7 @@
               <label class="field-label" for="inputCta">CTA Button</label>
               <input class="field-input" id="inputCta" type="text" value="Save this →" placeholder="Save this →">
             </div>
-            <div class="field-group">
-              <label class="field-label" for="inputBadge">Badge / Category</label>
-              <input class="field-input" id="inputBadge" type="text" value="Insight" placeholder="e.g., Education, Tips, Money">
-            </div>
+
           </div>
         </div>
       </div>
@@ -258,28 +227,178 @@
         </div>
       </div>
 
-      <!-- Section: Background Image -->
-      <div class="accordion" id="accBgImage">
-        <button class="accordion-trigger" data-accordion="accBgImage">
-          <span>Background Image</span>
+      <!-- Section: Background -->
+      <div class="accordion" id="accBackground">
+        <button class="accordion-trigger" data-accordion="accBackground">
+          <span>Background</span>
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="accordion-body">
           <div class="accordion-inner">
-            <div class="field-group">
-              <label class="field-label" for="inputBgUrl">Image URL (Unsplash, etc.)</label>
-              <input class="field-input" id="inputBgUrl" type="url" placeholder="https://images.unsplash.com/...">
+            <div class="bg-tabs" id="bgTabs">
+              <button class="bg-tab active" data-bgtab="image">Image</button>
+              <button class="bg-tab" data-bgtab="gradient">Gradient</button>
+              <button class="bg-tab" data-bgtab="pattern">Patterns</button>
             </div>
-            <div class="field-group">
-              <label class="field-label">Image Filter</label>
-              <div class="btn-group" id="bgFilterGroup">
-                <button class="btn-toggle active" data-filter="none">None</button>
-                <button class="btn-toggle" data-filter="duotone">Duotone</button>
-                <button class="btn-toggle" data-filter="grayscale">B&W</button>
+
+            <!-- Image Tab -->
+            <div class="bg-tab-content active" id="bgTabImage">
+              <div class="field-group">
+                <input type="file" accept="image/*" id="inputBgFile" class="sr-only">
+                <button class="btn-upload" id="btnUploadBg">📷 Upload Background Image</button>
+                <div class="upload-preview hidden" id="uploadPreview">
+                  <img id="uploadThumb" src="" alt="Preview">
+                  <button class="upload-remove" id="btnRemoveBg" title="Remove image">✕</button>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Image Filter</label>
+                <div class="btn-group" id="bgFilterGroup">
+                  <button class="btn-toggle active" data-filter="none">None</button>
+                  <button class="btn-toggle" data-filter="duotone">Duotone</button>
+                  <button class="btn-toggle" data-filter="grayscale">B&W</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gradient Tab -->
+            <div class="bg-tab-content" id="bgTabGradient">
+              <div class="field-group">
+                <label class="field-label">Type</label>
+                <div class="btn-group" id="gradientTypeGroup">
+                  <button class="btn-toggle active" data-gtype="linear">Linear</button>
+                  <button class="btn-toggle" data-gtype="radial">Radial</button>
+                </div>
+              </div>
+              <div class="field-group" id="gradientAngleGroup">
+                <label class="field-label">Angle: <span id="gradientAngleVal">135</span>°</label>
+                <input type="range" class="field-range" id="gradientAngle" min="0" max="360" value="135">
+              </div>
+              <div id="gradientStops"></div>
+              <div class="gradient-actions">
+                <button class="btn-sm" id="btnAddStop">+ Add Stop</button>
+                <button class="btn-sm" id="btnRemoveStop">− Remove</button>
+              </div>
+              <div class="gradient-preview" id="gradientPreview"></div>
+              <button class="btn-sm btn-apply-gradient" id="btnApplyGradient">Apply Gradient</button>
+              <button class="btn-sm" id="btnClearGradient">Clear</button>
+            </div>
+
+            <!-- Pattern Tab -->
+            <div class="bg-tab-content" id="bgTabPattern">
+              <div class="pattern-grid" id="patternGrid"></div>
+              <div class="field-group" id="patternControls" style="display:none">
+                <label class="field-label">Pattern Color</label>
+                <input type="color" class="color-swatch-input" id="patternColor" value="#A78BFA">
+                <label class="field-label" style="margin-top:8px">Scale: <span id="patternScaleVal">1.0</span></label>
+                <input type="range" class="field-range" id="patternScale" min="0.5" max="3" step="0.1" value="1">
+                <label class="field-label" style="margin-top:8px">Opacity: <span id="patternOpacityVal">0.3</span></label>
+                <input type="range" class="field-range" id="patternOpacity" min="0" max="1" step="0.05" value="0.3">
+                <button class="btn-sm" id="btnClearPattern" style="margin-top:8px">Clear Pattern</button>
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Section: Brand Kit -->
+      <div class="accordion" id="accBrandKit">
+        <button class="accordion-trigger" data-accordion="accBrandKit">
+          <span>Brand Kit</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="brand-kit-swatches" id="brandKitSwatches"></div>
+            <div class="brand-kit-actions">
+              <button class="btn-sm" id="btnSaveBrandKit">💾 Save Brand Kit</button>
+              <button class="btn-sm" id="btnLoadBrandKit">📂 Load Brand Kit</button>
+              <button class="btn-sm danger" id="btnClearBrandKit">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Color Palette Generator -->
+      <div class="accordion" id="accPalette">
+        <button class="accordion-trigger" data-accordion="accPalette">
+          <span>Palette Generator</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <button class="btn-sm" id="btnGeneratePalette" style="width:100%;margin-bottom:12px">🎨 Generate from Background</button>
+            <div id="paletteResults"></div>
+            <label class="field-label" style="margin-top:12px">Premium Presets</label>
+            <div class="palette-presets" id="palettePresets"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Text Effects -->
+      <div class="accordion" id="accTextEffects">
+        <button class="accordion-trigger" data-accordion="accTextEffects">
+          <span>Text Effects</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="fx-group">
+              <div class="fx-header"><label class="field-label">Text Shadow</label><button class="btn-reset" data-reset="shadow">↺</button></div>
+              <label class="toggle-row"><input type="checkbox" id="fxShadowOn"> Enable</label>
+              <label class="field-label">X: <span id="fxShadowXVal">2</span>px</label>
+              <input type="range" class="field-range" id="fxShadowX" min="-10" max="10" value="2">
+              <label class="field-label">Y: <span id="fxShadowYVal">2</span>px</label>
+              <input type="range" class="field-range" id="fxShadowY" min="-10" max="10" value="2">
+              <label class="field-label">Blur: <span id="fxShadowBlurVal">4</span>px</label>
+              <input type="range" class="field-range" id="fxShadowBlur" min="0" max="20" value="4">
+              <input type="color" class="color-swatch-input" id="fxShadowColor" value="#000000">
+            </div>
+            <div class="fx-group">
+              <div class="fx-header"><label class="field-label">Text Stroke</label><button class="btn-reset" data-reset="stroke">↺</button></div>
+              <label class="toggle-row"><input type="checkbox" id="fxStrokeOn"> Enable</label>
+              <label class="field-label">Width: <span id="fxStrokeWVal">1</span>px</label>
+              <input type="range" class="field-range" id="fxStrokeW" min="0" max="5" step="0.5" value="1">
+              <input type="color" class="color-swatch-input" id="fxStrokeColor" value="#000000">
+            </div>
+            <div class="fx-group">
+              <div class="fx-header"><label class="field-label">Glow</label><button class="btn-reset" data-reset="glow">↺</button></div>
+              <label class="toggle-row"><input type="checkbox" id="fxGlowOn"> Enable</label>
+              <label class="field-label">Intensity: <span id="fxGlowBlurVal">8</span>px</label>
+              <input type="range" class="field-range" id="fxGlowBlur" min="0" max="30" value="8">
+              <input type="color" class="color-swatch-input" id="fxGlowColor" value="#A78BFA">
+            </div>
+            <div class="fx-group">
+              <label class="field-label">Letter Spacing: <span id="fxLetterSpVal">0</span>px</label>
+              <input type="range" class="field-range" id="fxLetterSp" min="-2" max="10" step="0.5" value="0">
+              <label class="field-label">Line Height: <span id="fxLineHVal">1.3</span></label>
+              <input type="range" class="field-range" id="fxLineH" min="1" max="2.5" step="0.1" value="1.3">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Stickers -->
+      <div class="accordion" id="accStickers">
+        <button class="accordion-trigger" data-accordion="accStickers">
+          <span>Stickers & Icons</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="sticker-tabs">
+              <button class="bg-tab active" data-stab="emoji">Emojis</button>
+              <button class="bg-tab" data-stab="icon">Icons</button>
+            </div>
+            <div class="sticker-tab-content active" id="stickerEmoji"></div>
+            <div class="sticker-tab-content" id="stickerIcon"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generate Caption Button -->
+      <div class="sidebar-bottom-action">
+        <button class="btn-generate-caption" id="btnGenerateCaption">✨ Generate Caption & Hashtags</button>
       </div>
 
     </aside>
@@ -296,8 +415,12 @@
           <div class="canvas-bg-image" id="canvasBgImage"></div>
           <!-- Gradient overlay for editorial mode -->
           <div class="canvas-bg-overlay" id="canvasBgOverlay"></div>
+          <!-- Pattern overlay -->
+          <div class="canvas-pattern" id="canvasPattern"></div>
           <!-- Dot grid pattern -->
           <div class="canvas-grid" id="canvasGrid"></div>
+          <!-- Sticker container -->
+          <div class="canvas-stickers" id="canvasStickers"></div>
           <!-- Golden ratio guide lines -->
           <div class="canvas-guide" id="canvasGuide">
             <!-- Lines positioned by JS based on canvas size -->
@@ -367,6 +490,9 @@ Following a clear strategy</div>
         </div><!-- canvas-inner -->
       </div><!-- canvas-frame -->
 
+      <!-- Carousel preview button -->
+      <button class="btn-sm btn-carousel-preview hidden" id="btnCarouselPreview">▶ Preview Carousel</button>
+
       <!-- Carousel slide thumbnails -->
       <div class="carousel-strip" id="carouselStrip">
         <!-- Rendered by JS -->
@@ -389,6 +515,59 @@ Following a clear strategy</div>
   </div>
 </div>
 
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-card">
+    <div class="modal-header"><h3>Settings</h3><button class="modal-close" data-close="settingsModal">✕</button></div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label class="field-label">Anthropic API Key</label>
+        <input class="field-input" id="settingsApiKey" type="password" placeholder="sk-ant-...">
+      </div>
+      <div class="field-group">
+        <label class="field-label">API Endpoint (for CORS proxy)</label>
+        <input class="field-input" id="settingsApiEndpoint" type="url" placeholder="https://api.anthropic.com/v1/messages">
+      </div>
+      <button class="btn-sm" id="btnSaveSettings" style="margin-top:8px">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI Caption Modal -->
+<div class="modal-overlay" id="captionModal">
+  <div class="modal-card modal-lg">
+    <div class="modal-header"><h3>Caption & Hashtags</h3><button class="modal-close" data-close="captionModal">✕</button></div>
+    <div class="modal-body" id="captionModalBody"><p style="color:var(--text-muted)">Click Generate to create caption...</p></div>
+  </div>
+</div>
+
+<!-- Carousel Preview Modal -->
+<div class="modal-overlay" id="carouselPreviewModal">
+  <div class="modal-card modal-preview">
+    <div class="modal-header">
+      <h3>Carousel Preview</h3>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="field-select" id="previewTransition" style="width:auto;padding:6px 10px;font-size:12px">
+          <option value="slide">Slide</option>
+          <option value="fade">Fade</option>
+          <option value="zoom">Zoom</option>
+        </select>
+        <button class="btn-sm" id="btnPreviewPlay">▶ Play</button>
+        <button class="modal-close" data-close="carouselPreviewModal">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="preview-stage" id="previewStage"></div>
+      <div class="preview-nav">
+        <button class="btn-sm" id="btnPreviewPrev">← Prev</button>
+        <div class="preview-dots" id="previewDots"></div>
+        <button class="btn-sm" id="btnPreviewNext">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="features.js"></script>
 <script src="engine.js"></script>
 </body>
 </html>

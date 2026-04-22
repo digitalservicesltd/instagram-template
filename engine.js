@@ -6,7 +6,6 @@
 const STATE = {
   mode: 'quote',
   ratio: '1:1',
-  mood: 'elegant',
   format: 'static',
   bgFilter: 'none',
   guideVisible: false,
@@ -32,7 +31,7 @@ const STATE = {
     ],
     leftCol: "Waiting for the perfect moment\nTrying to do everything alone\nChasing trends blindly",
     rightCol: "Starting before you feel ready\nBuilding with a team\nFollowing a clear strategy",
-    bgImageUrl: '',
+    bgImageData: '',
   },
 
   colors: {
@@ -41,6 +40,23 @@ const STATE = {
     accent: '#A78BFA',
     accent2: '#6D28D9',
   },
+
+  gradient: { enabled: false, type: 'linear', angle: 135, stops: [
+    { color: '#A78BFA', position: 0 },
+    { color: '#6D28D9', position: 50 },
+    { color: '#0C0A15', position: 100 }
+  ]},
+
+  pattern: { enabled: false, type: null, color: '#A78BFA', scale: 1, opacity: 0.3 },
+
+  textEffects: {
+    shadow: { on: false, x: 2, y: 2, blur: 4, color: '#000000' },
+    stroke: { on: false, width: 1, color: '#000000' },
+    glow: { on: false, blur: 8, color: '#A78BFA' },
+    letterSpacing: 0, lineHeight: 1.3,
+  },
+
+  stickers: [],
 
   carousel: {
     currentSlide: 0,
@@ -233,6 +249,9 @@ function cacheDom() {
   DOM.exportProgress = $('exportProgress');
   DOM.exportProgressText = $('exportProgressText');
 
+  DOM.canvasPattern = $('canvasPattern');
+  DOM.canvasStickers = $('canvasStickers');
+
   // Color inputs
   DOM.colorBg = $('colorBg');
   DOM.colorText = $('colorText');
@@ -251,26 +270,37 @@ function cacheDom() {
 function init() {
   cacheDom();
   bindAccordions();
-  bindMoodSelector();
   bindModeCards();
   bindFormatToggle();
   bindRatioToggle();
   bindFontPairing();
   bindContentInputs();
   bindColorInputs();
-  bindBgImage();
+  bindBgUpload();
   bindBgFilter();
+  bindBgTabs();
   bindHookLibrary();
   bindExportButtons();
   bindGuideToggle();
   bindCarouselControls();
+  bindGradientBuilder();
+  bindPatternSystem();
+  bindTextEffects();
+  bindBrandKit();
+  bindPaletteGenerator();
+  bindStickerSystem();
+  bindSettingsModal();
+  bindAICaptionGenerator();
+  bindCarouselPreview();
+  bindMobileDrawer();
 
   // Initial render
-  applyMood(STATE.mood);
+  applyColors();
   applyRatio(STATE.ratio);
   renderContentFields();
   renderCanvas();
   renderGoldenGuide();
+  checkBrandKitOnLoad();
 }
 
 
@@ -288,58 +318,31 @@ function bindAccordions() {
 
 
 // ═══════════════════════════════════════════════════════════
-//  MOOD SELECTOR
+//  COLOR APPLICATION (replaces mood selector)
 // ═══════════════════════════════════════════════════════════
-function bindMoodSelector() {
-  $$('.mood-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      const mood = pill.dataset.mood;
-      STATE.mood = mood;
-      $$('.mood-pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      applyMood(mood);
-      renderCanvas();
-    });
-  });
+function applyColors() {
+  const c = STATE.colors;
+  const ci = DOM.canvasInner;
+  ci.style.setProperty('--canvas-bg', c.bg);
+  ci.style.setProperty('--canvas-text', c.text);
+  ci.style.setProperty('--canvas-accent', c.accent);
+  ci.style.setProperty('--canvas-accent2', c.accent2);
+  ci.style.setProperty('--canvas-muted', isLightColor(c.bg) ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.45)');
+  ci.style.setProperty('--canvas-subtle', isLightColor(c.bg) ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.07)');
+  const glow = `rgba(${hexToRgb(c.accent)}, 0.2)`;
+  ci.style.setProperty('--canvas-glow', glow);
+  if (!STATE.gradient.enabled) ci.style.background = c.bg;
+  DOM.canvasFrame.style.setProperty('--canvas-glow', glow);
+  DOM.colorBg.value = c.bg; DOM.colorText.value = c.text;
+  DOM.colorAccent.value = c.accent; DOM.colorAccent2.value = c.accent2;
+  DOM.colorBgHex.value = c.bg; DOM.colorTextHex.value = c.text;
+  DOM.colorAccentHex.value = c.accent; DOM.colorAccent2Hex.value = c.accent2;
+  if (DOM.canvasGrid) DOM.canvasGrid.style.opacity = isLightColor(c.bg) ? '0.3' : '0.6';
 }
 
-function applyMood(mood) {
-  const palette = MOOD_PALETTES[mood];
-  if (!palette) return;
-
-  STATE.colors.bg = palette.bg;
-  STATE.colors.text = palette.text;
-  STATE.colors.accent = palette.accent;
-  STATE.colors.accent2 = palette.accent2;
-
-  // Update CSS variables on canvas
-  const ci = DOM.canvasInner;
-  ci.style.setProperty('--canvas-bg', palette.bg);
-  ci.style.setProperty('--canvas-text', palette.text);
-  ci.style.setProperty('--canvas-accent', palette.accent);
-  ci.style.setProperty('--canvas-accent2', palette.accent2);
-  ci.style.setProperty('--canvas-muted', isLightColor(palette.bg) ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.45)');
-  ci.style.setProperty('--canvas-subtle', isLightColor(palette.bg) ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.07)');
-  ci.style.setProperty('--canvas-glow', palette.glow);
-  ci.style.background = palette.bg;
-
-  // Update canvas frame glow
-  DOM.canvasFrame.style.setProperty('--canvas-glow', palette.glow);
-
-  // Sync color pickers
-  DOM.colorBg.value = palette.bg;
-  DOM.colorText.value = palette.text;
-  DOM.colorAccent.value = palette.accent;
-  DOM.colorAccent2.value = palette.accent2;
-  DOM.colorBgHex.value = palette.bg;
-  DOM.colorTextHex.value = palette.text;
-  DOM.colorAccentHex.value = palette.accent;
-  DOM.colorAccent2Hex.value = palette.accent2;
-
-  // Adjust grid opacity for light backgrounds
-  if (DOM.canvasGrid) {
-    DOM.canvasGrid.style.opacity = isLightColor(palette.bg) ? '0.3' : '0.6';
-  }
+function hexToRgb(hex) {
+  const c = hex.replace('#', '');
+  return `${parseInt(c.substring(0,2),16)}, ${parseInt(c.substring(2,4),16)}, ${parseInt(c.substring(4,6),16)}`;
 }
 
 function isLightColor(hex) {
@@ -465,17 +468,12 @@ function getAutoFontSizeForRatio(text) {
 //  CONTENT FIELDS (dynamic based on mode)
 // ═══════════════════════════════════════════════════════════
 function bindContentInputs() {
-  // Static inputs that are always visible
   $('inputHandle').addEventListener('input', (e) => {
     STATE.content.handle = e.target.value;
     renderCanvas();
   });
   $('inputCta').addEventListener('input', (e) => {
     STATE.content.cta = e.target.value;
-    renderCanvas();
-  });
-  $('inputBadge').addEventListener('input', (e) => {
-    STATE.content.badge = e.target.value;
     renderCanvas();
   });
 }
@@ -613,27 +611,6 @@ function bindColorInputs() {
 }
 
 
-// ═══════════════════════════════════════════════════════════
-//  BACKGROUND IMAGE
-// ═══════════════════════════════════════════════════════════
-function bindBgImage() {
-  $('inputBgUrl').addEventListener('input', debounce((e) => {
-    const url = e.target.value.trim();
-    STATE.content.bgImageUrl = url;
-
-    if (url) {
-      DOM.canvasBgImage.style.backgroundImage = `url(${url})`;
-      DOM.canvasBgImage.classList.add('visible');
-      DOM.canvasBgOverlay.classList.add('visible');
-      DOM.canvasGrid.style.opacity = '0.15';
-    } else {
-      DOM.canvasBgImage.classList.remove('visible');
-      DOM.canvasBgOverlay.classList.remove('visible');
-      DOM.canvasGrid.style.opacity = isLightColor(STATE.colors.bg) ? '0.3' : '0.6';
-    }
-    applyBgFilter();
-  }, 400));
-}
 
 function bindBgFilter() {
   $$('#bgFilterGroup .btn-toggle').forEach(btn => {
@@ -878,9 +855,11 @@ function renderCanvas() {
   DOM.tplComparison.classList.toggle('active', mode === 'comparison');
   DOM.tplEditorial.classList.toggle('active', mode === 'editorial');
 
-  // Show bg overlay only for editorial with image
-  const hasImage = STATE.content.bgImageUrl && STATE.content.bgImageUrl.trim();
+  const hasImage = STATE.content.bgImageData && STATE.content.bgImageData.length > 0;
   DOM.canvasBgOverlay.classList.toggle('visible', mode === 'editorial' && hasImage);
+
+  // Apply text effects
+  applyTextEffects();
 
   // Render per-mode content
   if (mode === 'quote') renderQuote();
@@ -953,7 +932,6 @@ function escapeHtml(str) {
 // ═══════════════════════════════════════════════════════════
 function bindExportButtons() {
   $('btnExportPng').addEventListener('click', exportSinglePng);
-  $('btnExportZip').addEventListener('click', exportCarouselZip);
 }
 
 async function exportSinglePng() {
@@ -995,69 +973,6 @@ async function exportSinglePng() {
   }
 }
 
-async function exportCarouselZip() {
-  if (STATE.format !== 'carousel' || STATE.carousel.slides.length < 2) {
-    showToast('Switch to Carousel mode with 2+ slides first', 'error');
-    return;
-  }
-
-  showExportProgress('Preparing carousel export...');
-  try {
-    const zip = new JSZip();
-    const scale = EXPORT_SCALES[STATE.ratio] || 2.5;
-    const originalSlide = STATE.carousel.currentSlide;
-
-    // Temporarily hide guide
-    const guideWasVisible = STATE.guideVisible;
-    DOM.canvasGuide.classList.remove('visible');
-    $('guideToggle').style.display = 'none';
-
-    for (let i = 0; i < STATE.carousel.slides.length; i++) {
-      DOM.exportProgressText.textContent = `Rendering slide ${i + 1} of ${STATE.carousel.slides.length}...`;
-
-      // Load slide content
-      STATE.carousel.currentSlide = i;
-      loadSlideContent(i);
-      renderContentFields();
-      renderCanvas();
-
-      // Wait a tick for DOM to update
-      await new Promise(r => setTimeout(r, 100));
-
-      const canvas = await html2canvas(DOM.canvasInner, {
-        scale: scale,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
-        logging: false,
-      });
-
-      const dataUrl = canvas.toDataURL('image/png');
-      const base64 = dataUrl.split(',')[1];
-      zip.file(`slide-${String(i + 1).padStart(2, '0')}.png`, base64, { base64: true });
-    }
-
-    // Restore original slide
-    STATE.carousel.currentSlide = originalSlide;
-    loadSlideContent(originalSlide);
-    renderCarouselStrip();
-    renderContentFields();
-    renderCanvas();
-    if (guideWasVisible) DOM.canvasGuide.classList.add('visible');
-    $('guideToggle').style.display = '';
-
-    DOM.exportProgressText.textContent = 'Compressing ZIP...';
-    const blob = await zip.generateAsync({ type: 'blob' });
-    saveAs(blob, `carousel-${STATE.mode}-${Date.now()}.zip`);
-
-    hideExportProgress();
-    showToast(`${STATE.carousel.slides.length} slides exported as ZIP!`, 'success');
-  } catch (err) {
-    hideExportProgress();
-    showToast('ZIP export failed: ' + err.message, 'error');
-    console.error('ZIP export error:', err);
-  }
-}
 
 function showExportProgress(text) {
   DOM.exportProgressText.textContent = text;
@@ -1099,6 +1014,10 @@ function debounce(fn, ms) {
   };
 }
 
+
+// ═══════════════════════════════════════════════════════════
+//  NEW FEATURES - loaded from features.js
+// ═══════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════
 //  BOOT
