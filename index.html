@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Engine — Instagram Template Builder</title>
+  <meta name="description" content="Premium Instagram content creation tool with intelligent typography, visual effects, and one-click export.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Export libs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" defer></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ═══ SVG FILTERS ═══ -->
+<svg style="position:absolute;width:0;height:0" aria-hidden="true">
+  <defs>
+    <filter id="grain" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feBlend in="SourceGraphic" in2="mono" mode="soft-light"/>
+    </filter>
+    <filter id="duotone">
+      <feColorMatrix type="matrix" values="
+        0.3 0.3 0.3 0 0
+        0.3 0.3 0.3 0 0
+        0.3 0.3 0.3 0 0
+        0   0   0   1 0"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- ═══ APP WRAPPER ═══ -->
+<div class="app-wrapper">
+
+  <!-- ─── TOP BAR ─── -->
+  <header class="top-bar" id="topBar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      Content<span>Engine</span>
+    </div>
+
+    <div class="mood-selector" id="moodSelector">
+      <button class="mood-pill" data-mood="aggressive" id="mood-aggressive" title="Aggressive: Red/Black">
+        <span class="mood-dot" data-mood="aggressive"></span>
+        <span>Aggressive</span>
+      </button>
+      <button class="mood-pill" data-mood="calm" id="mood-calm" title="Calm: Sage/Cream">
+        <span class="mood-dot" data-mood="calm"></span>
+        <span>Calm</span>
+      </button>
+      <button class="mood-pill active" data-mood="elegant" id="mood-elegant" title="Elegant: Violet/Deep">
+        <span class="mood-dot" data-mood="elegant"></span>
+        <span>Elegant</span>
+      </button>
+      <button class="mood-pill" data-mood="bold" id="mood-bold" title="Bold: Amber/Charcoal">
+        <span class="mood-dot" data-mood="bold"></span>
+        <span>Bold</span>
+      </button>
+      <button class="mood-pill" data-mood="minimal" id="mood-minimal" title="Minimal: Gray/White">
+        <span class="mood-dot" data-mood="minimal"></span>
+        <span>Minimal</span>
+      </button>
+      <button class="mood-pill" data-mood="warm" id="mood-warm" title="Warm: Orange/Cream">
+        <span class="mood-dot" data-mood="warm"></span>
+        <span>Warm</span>
+      </button>
+    </div>
+
+    <div class="top-bar-actions">
+      <button class="btn-export btn-export-secondary" id="btnExportZip" title="Export carousel as ZIP">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        <span>ZIP</span>
+      </button>
+      <button class="btn-export" id="btnExportPng" title="Export as PNG">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        <span>Export PNG</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ─── MAIN LAYOUT ─── -->
+  <main class="main-content">
+
+    <!-- ─── SIDEBAR ─── -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Section: Intent Mode -->
+      <div class="accordion open" id="accMode">
+        <button class="accordion-trigger" data-accordion="accMode">
+          <span>Template Mode</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="mode-grid" id="modeGrid">
+              <div class="mode-card active" data-mode="quote">
+                <span class="mode-card-icon">❝</span>
+                <span class="mode-card-label">The Quote</span>
+              </div>
+              <div class="mode-card" data-mode="checklist">
+                <span class="mode-card-icon">☑</span>
+                <span class="mode-card-label">Checklist</span>
+              </div>
+              <div class="mode-card" data-mode="comparison">
+                <span class="mode-card-icon">⇄</span>
+                <span class="mode-card-label">Comparison</span>
+              </div>
+              <div class="mode-card" data-mode="editorial">
+                <span class="mode-card-icon">◆</span>
+                <span class="mode-card-label">Editorial</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Format & Ratio -->
+      <div class="accordion open" id="accFormat">
+        <button class="accordion-trigger" data-accordion="accFormat">
+          <span>Format & Ratio</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="field-group">
+              <label class="field-label">Format</label>
+              <div class="btn-group" id="formatGroup">
+                <button class="btn-toggle active" data-format="static">Static Post</button>
+                <button class="btn-toggle" data-format="carousel">Carousel</button>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Aspect Ratio</label>
+              <div class="btn-group" id="ratioGroup">
+                <button class="btn-toggle active" data-ratio="1:1">1:1 Post</button>
+                <button class="btn-toggle" data-ratio="4:5">4:5 Portrait</button>
+                <button class="btn-toggle" data-ratio="9:16">9:16 Story</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Typography -->
+      <div class="accordion open" id="accTypo">
+        <button class="accordion-trigger" data-accordion="accTypo">
+          <span>Typography</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="field-group">
+              <label class="field-label">Font Pairing</label>
+              <select class="field-select" id="fontPairing">
+                <option value="luxury">Luxury — Playfair Display + Inter</option>
+                <option value="modern">Modern — Space Grotesk + Inter</option>
+                <option value="editorial">Editorial — Cormorant Garamond + Outfit</option>
+                <option value="bold">Bold — Outfit + Inter</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Hook Library -->
+      <div class="accordion" id="accHooks">
+        <button class="accordion-trigger" data-accordion="accHooks">
+          <span>Hook Library</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="hook-library" id="hookLibrary">
+              <div class="hook-search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" class="hook-search" id="hookSearch" placeholder="Search 55 viral hook formulas..." autocomplete="off">
+              </div>
+              <div class="hook-dropdown" id="hookDropdown"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Content -->
+      <div class="accordion open" id="accContent">
+        <button class="accordion-trigger" data-accordion="accContent">
+          <span>Content</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner" id="contentFields">
+            <!-- Carousel slide manager (hidden by default) -->
+            <div class="slide-manager hidden" id="slideManager">
+              <span class="slide-number-display" id="slideNumberDisplay">Slide 1 / 1</span>
+              <button class="btn-sm" id="btnPrevSlide">← Prev</button>
+              <button class="btn-sm" id="btnNextSlide">Next →</button>
+              <button class="btn-sm" id="btnAddSlide">+ Add</button>
+              <button class="btn-sm danger" id="btnRemoveSlide">Remove</button>
+            </div>
+
+            <!-- Dynamic fields rendered by JS -->
+            <div id="dynamicContentFields"></div>
+
+            <div class="field-group">
+              <label class="field-label" for="inputHandle">Handle</label>
+              <input class="field-input" id="inputHandle" type="text" value="@yourhandle" placeholder="@yourhandle">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="inputCta">CTA Button</label>
+              <input class="field-input" id="inputCta" type="text" value="Save this →" placeholder="Save this →">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="inputBadge">Badge / Category</label>
+              <input class="field-input" id="inputBadge" type="text" value="Insight" placeholder="e.g., Education, Tips, Money">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Colors -->
+      <div class="accordion" id="accColors">
+        <button class="accordion-trigger" data-accordion="accColors">
+          <span>Custom Colors</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="color-row">
+              <input type="color" class="color-swatch-input" id="colorBg" value="#0C0A15">
+              <span class="color-label">Background</span>
+              <input class="color-hex" id="colorBgHex" value="#0C0A15" maxlength="7">
+            </div>
+            <div class="color-row">
+              <input type="color" class="color-swatch-input" id="colorText" value="#FAFAFA">
+              <span class="color-label">Text</span>
+              <input class="color-hex" id="colorTextHex" value="#FAFAFA" maxlength="7">
+            </div>
+            <div class="color-row">
+              <input type="color" class="color-swatch-input" id="colorAccent" value="#A78BFA">
+              <span class="color-label">Accent</span>
+              <input class="color-hex" id="colorAccentHex" value="#A78BFA" maxlength="7">
+            </div>
+            <div class="color-row">
+              <input type="color" class="color-swatch-input" id="colorAccent2" value="#6D28D9">
+              <span class="color-label">Accent 2</span>
+              <input class="color-hex" id="colorAccent2Hex" value="#6D28D9" maxlength="7">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Background Image -->
+      <div class="accordion" id="accBgImage">
+        <button class="accordion-trigger" data-accordion="accBgImage">
+          <span>Background Image</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-inner">
+            <div class="field-group">
+              <label class="field-label" for="inputBgUrl">Image URL (Unsplash, etc.)</label>
+              <input class="field-input" id="inputBgUrl" type="url" placeholder="https://images.unsplash.com/...">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Image Filter</label>
+              <div class="btn-group" id="bgFilterGroup">
+                <button class="btn-toggle active" data-filter="none">None</button>
+                <button class="btn-toggle" data-filter="duotone">Duotone</button>
+                <button class="btn-toggle" data-filter="grayscale">B&W</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ─── CANVAS AREA ─── -->
+    <section class="canvas-area" id="canvasArea">
+
+      <div class="canvas-frame" id="canvasFrame">
+        <!-- Guide toggle button -->
+        <button class="guide-toggle" id="guideToggle" title="Toggle golden ratio grid">⊞</button>
+
+        <div class="canvas-inner" id="canvasInner">
+          <!-- Background image layer -->
+          <div class="canvas-bg-image" id="canvasBgImage"></div>
+          <!-- Gradient overlay for editorial mode -->
+          <div class="canvas-bg-overlay" id="canvasBgOverlay"></div>
+          <!-- Dot grid pattern -->
+          <div class="canvas-grid" id="canvasGrid"></div>
+          <!-- Golden ratio guide lines -->
+          <div class="canvas-guide" id="canvasGuide">
+            <!-- Lines positioned by JS based on canvas size -->
+          </div>
+
+          <!-- ═══ TEMPLATE: QUOTE ═══ -->
+          <div class="tpl-quote active" id="tplQuote">
+            <div class="quote-badge" id="quoteBadge">Insight</div>
+            <div class="quote-mark-open">"</div>
+            <div class="quote-text" id="quoteText">The best time to start was yesterday. The next best time is now.</div>
+            <div class="quote-accent-line"></div>
+            <div class="quote-author" id="quoteAuthor">— @yourhandle</div>
+            <div class="quote-handle" id="quoteHandle">@yourhandle</div>
+            <div class="quote-cta" id="quoteCta">Save this →</div>
+          </div>
+
+          <!-- ═══ TEMPLATE: CHECKLIST ═══ -->
+          <div class="tpl-checklist" id="tplChecklist">
+            <div class="checklist-header">
+              <div class="checklist-badge" id="checklistBadge">Insight</div>
+            </div>
+            <div class="checklist-title" id="checklistTitle">5 Habits That Changed My Life</div>
+            <div class="checklist-items" id="checklistItems">
+              <!-- Rendered by JS -->
+            </div>
+            <div class="checklist-footer">
+              <span class="checklist-handle" id="checklistHandle">@yourhandle</span>
+              <span class="checklist-cta" id="checklistCta">Save this →</span>
+            </div>
+          </div>
+
+          <!-- ═══ TEMPLATE: COMPARISON ═══ -->
+          <div class="tpl-comparison" id="tplComparison">
+            <div class="comparison-badge" id="comparisonBadge">Insight</div>
+            <div class="comparison-title" id="comparisonTitle">Old Way vs New Way</div>
+            <div class="comparison-columns">
+              <div class="comparison-col col-left">
+                <div class="col-label">✕ Don't</div>
+                <div class="col-content" id="comparisonLeft">Waiting for the perfect moment
+Trying to do everything alone
+Chasing trends blindly</div>
+              </div>
+              <div class="comparison-col col-right">
+                <div class="col-label">✓ Do</div>
+                <div class="col-content" id="comparisonRight">Starting before you feel ready
+Building with a team
+Following a clear strategy</div>
+              </div>
+              <div class="comparison-vs">VS</div>
+            </div>
+            <div class="comparison-footer">
+              <span class="comparison-handle" id="comparisonHandle">@yourhandle</span>
+            </div>
+          </div>
+
+          <!-- ═══ TEMPLATE: EDITORIAL ═══ -->
+          <div class="tpl-editorial" id="tplEditorial">
+            <div class="editorial-badge" id="editorialBadge">Insight</div>
+            <div class="editorial-headline" id="editorialHeadline">The Art of Doing Less and Achieving More</div>
+            <div class="editorial-subtext" id="editorialSubtext">Focus isn't about saying yes to one thing. It's about saying no to everything else.</div>
+            <div class="editorial-footer">
+              <span class="editorial-handle" id="editorialHandle">@yourhandle</span>
+              <span class="editorial-cta" id="editorialCta">Save this →</span>
+            </div>
+          </div>
+
+        </div><!-- canvas-inner -->
+      </div><!-- canvas-frame -->
+
+      <!-- Carousel slide thumbnails -->
+      <div class="carousel-strip" id="carouselStrip">
+        <!-- Rendered by JS -->
+      </div>
+
+    </section>
+
+  </main>
+
+</div><!-- app-wrapper -->
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Export progress overlay -->
+<div class="export-progress" id="exportProgress">
+  <div class="export-progress-card">
+    <div class="export-spinner"></div>
+    <div class="export-progress-text" id="exportProgressText">Exporting...</div>
+  </div>
+</div>
+
+<script src="engine.js"></script>
+</body>
+</html>
